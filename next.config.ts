@@ -8,7 +8,11 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'out',
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
