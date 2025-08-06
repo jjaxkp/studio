@@ -1,6 +1,7 @@
 import { HeroSection } from '@/components/landing/hero-section';
 import { InnovationsSection } from '@/components/landing/innovations-section';
 import { EdgeTeaserSection } from '@/components/landing/edge-teaser-section';
+import { PartnershipsSection } from '@/components/partnerships-section';
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <HeroSection />
       <InnovationsSection />
       <EdgeTeaserSection />
+      <PartnershipsSection />
     </div>
   );
 }

@@ -8,14 +8,28 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Building, Phone, AlertCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { submitContactForm, type ContactFormData } from "@/lib/contact";
+
+// Extend the interface to include inquiryType
+interface ExtendedContactFormData extends ContactFormData {
+    inquiryType: string;
+}
 import { validateEmail, validateCompanyDomain, sanitizeInput, validateMessageLength } from "@/lib/validation";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const contactInfo = [
     { icon: Mail, label: 'Email', value: 'contact@meshesha.com', href: 'mailto:contact@meshesha.com' },
     { icon: Phone, label: 'Phone', value: '+1 (555) 123-4567', href: 'tel:+15551234567' },
     { icon: Building, label: 'Headquarters', value: 'Innovation Park, Palo Alto, CA', href: '#' },
 ]
+
+const inquiryTypes = [
+    { value: 'investor', label: 'Investor Inquiry', description: 'Funding opportunities and investor relations' },
+    { value: 'partner', label: 'Partnership', description: 'Strategic partnerships and collaborations' },
+    { value: 'media', label: 'Media & Press', description: 'Press inquiries and media relations' },
+    { value: 'talent', label: 'Talent & Careers', description: 'Career opportunities and talent acquisition' },
+    { value: 'general', label: 'General Inquiry', description: 'Other questions and general information' },
+];
 
 export default function ContactPage() {
     return (
@@ -70,11 +84,12 @@ function ContactForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [validationWarnings, setValidationWarnings] = useState<Record<string, string>>({});
-    const [formData, setFormData] = useState<ContactFormData>({
+    const [formData, setFormData] = useState<ExtendedContactFormData>({
         name: '',
         email: '',
         company: '',
         message: '',
+        inquiryType: 'general',
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -89,6 +104,10 @@ function ContactForm() {
         if (validationWarnings[name]) {
             setValidationWarnings(prev => ({ ...prev, [name]: '' }));
         }
+    };
+
+    const handleSelectChange = (value: string) => {
+        setFormData(prev => ({ ...prev, inquiryType: value }));
     };
 
     const validateForm = (): boolean => {
@@ -112,7 +131,12 @@ function ContactForm() {
             }
         }
 
-        // Message validation
+        // Inquiry type validation
+        if (!formData.inquiryType) {
+            errors.inquiryType = 'Please select an inquiry type';
+        }
+
+        // Message validation with inquiry-specific requirements
         const messageValidation = validateMessageLength(formData.message);
         if (!messageValidation.isValid) {
             errors.message = messageValidation.error!;
@@ -138,14 +162,24 @@ function ContactForm() {
         setIsSubmitting(true);
         
         try {
-            await submitContactForm(formData);
+            // Submit with extended data
+            const contactFormData: ContactFormData = {
+                name: formData.name,
+                email: formData.email,
+                company: formData.company,
+                message: `[${formData.inquiryType.toUpperCase()}] ${formData.message}`,
+            };
+            
+            await submitContactForm(contactFormData);
+            
+            const selectedInquiry = inquiryTypes.find(t => t.value === formData.inquiryType);
             toast({
                 title: "Message sent successfully!",
-                description: "Thank you for reaching out. We'll get back to you within 24 hours.",
+                description: `Thank you for your ${selectedInquiry?.label.toLowerCase()}. We'll get back to you within 24 hours.`,
             });
             
             // Reset form
-            setFormData({ name: '', email: '', company: '', message: '' });
+            setFormData({ name: '', email: '', company: '', message: '', inquiryType: 'general' });
         } catch (error) {
             console.error('Form submission error:', error);
             toast({
@@ -158,8 +192,38 @@ function ContactForm() {
         }
     };
 
+    const selectedInquiry = inquiryTypes.find(t => t.value === formData.inquiryType);
+
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+                <Label htmlFor="inquiryType">Type of Inquiry *</Label>
+                <Select value={formData.inquiryType} onValueChange={handleSelectChange}>
+                    <SelectTrigger className={validationErrors.inquiryType ? 'border-destructive' : ''}>
+                        <SelectValue placeholder="Select inquiry type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {inquiryTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                                <div>
+                                    <div className="font-medium">{type.label}</div>
+                                    <div className="text-xs text-muted-foreground">{type.description}</div>
+                                </div>
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                {selectedInquiry && (
+                    <p className="text-sm text-muted-foreground">{selectedInquiry.description}</p>
+                )}
+                {validationErrors.inquiryType && (
+                    <div className="flex items-center gap-1 text-sm text-destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        {validationErrors.inquiryType}
+                    </div>
+                )}
+            </div>
+
             <div className="space-y-2">
                 <Label htmlFor="name">Full Name *</Label>
                 <Input 
@@ -206,24 +270,40 @@ function ContactForm() {
             </div>
             
             <div className="space-y-2">
-                <Label htmlFor="company">Company (Optional)</Label>
+                <Label htmlFor="company">Company {formData.inquiryType === 'investor' || formData.inquiryType === 'partner' ? '*' : '(Optional)'}</Label>
                 <Input 
                     id="company" 
                     name="company"
                     value={formData.company}
                     onChange={handleInputChange}
                     placeholder="Your Company Name" 
+                    required={formData.inquiryType === 'investor' || formData.inquiryType === 'partner'}
                 />
             </div>
             
             <div className="space-y-2">
-                <Label htmlFor="message">Message * ({formData.message.length}/1000)</Label>
+                <Label htmlFor="message">
+                    Message * ({formData.message.length}/1000)
+                    {formData.inquiryType === 'investor' && (
+                        <span className="block text-xs font-normal text-muted-foreground mt-1">
+                            Please include your fund size, investment thesis, and timeline.
+                        </span>
+                    )}
+                </Label>
                 <Textarea 
                     id="message" 
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
-                    placeholder="Please tell us about your inquiry, investment interest, partnership opportunity, or media request..." 
+                    placeholder={
+                        formData.inquiryType === 'investor' 
+                            ? "Please tell us about your fund, investment focus, and interest in Meshesha Solutions..."
+                            : formData.inquiryType === 'partner'
+                            ? "Please describe your partnership opportunity and how we can collaborate..."
+                            : formData.inquiryType === 'media'
+                            ? "Please include your publication, deadline, and specific topics of interest..."
+                            : "Please tell us about your inquiry..."
+                    }
                     className={`min-h-[120px] ${validationErrors.message ? 'border-destructive' : ''}`}
                     required 
                 />
@@ -244,7 +324,7 @@ function ContactForm() {
                 ) : (
                     <>
                         <CheckCircle className="h-4 w-4 mr-2" />
-                        Submit Message
+                        Submit {selectedInquiry?.label || 'Message'}
                     </>
                 )}
             </Button>

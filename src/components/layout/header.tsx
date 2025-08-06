@@ -9,6 +9,7 @@ const navLinks = [
   { href: '/technology', label: 'Technology' },
   { href: '/our-edge', label: 'Our Edge' },
   { href: '/about', label: 'About Us' },
+  { href: '/investors', label: 'Investors' },
   { href: '/careers', label: 'Careers' },
 ];
 
