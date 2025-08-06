@@ -8,7 +8,7 @@ export function HeroSection() {
     <section className="relative h-[calc(100vh-4rem)] min-h-[600px] w-full flex items-center justify-center text-center overflow-hidden">
       <div className="absolute inset-0 z-[-1]">
         <Image
-          src="https://placehold.co/1920x1080.png"
+          src="https://images.unsplash.com/photo-1559028006-448665bd7c7f?w=1920&h=1080&fit=crop&crop=center&auto=format"
           alt="Abstract background representing energy storage technology"
           data-ai-hint="abstract energy"
           fill

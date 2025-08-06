@@ -23,8 +23,8 @@ const techData = {
       { icon: Award, text: 'Longer Cycle Lifespan' },
     ],
     image: {
-      src: 'https://placehold.co/600x400.png',
-      alt: 'Illustration of a solid-state battery structure',
+      src: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&h=400&fit=crop&crop=center&auto=format',
+      alt: 'Advanced solid-state battery technology visualization',
       hint: 'battery technology'
     },
   },
@@ -41,8 +41,8 @@ const techData = {
       { icon: Award, text: 'Ideal for Grid Storage' },
     ],
     image: {
-      src: 'https://placehold.co/600x400.png',
-      alt: 'Illustration of a zinc-ion battery used for grid storage',
+      src: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=400&fit=crop&crop=center&auto=format',
+      alt: 'Grid-scale energy storage system with renewable integration',
       hint: 'grid storage'
     },
   },
@@ -59,8 +59,8 @@ const techData = {
       { icon: Award, text: 'Enables Compact Designs' },
     ],
     image: {
-      src: 'https://placehold.co/600x400.png',
-      alt: 'Illustration of a heat-resistant li-ion battery without a cooling system',
+      src: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=600&h=400&fit=crop&crop=center&auto=format',
+      alt: 'Industrial battery systems operating in high-temperature environments',
       hint: 'industrial battery'
     },
   },
